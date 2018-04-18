@@ -1,0 +1,217 @@
+{
+  "name": "something/else",
+  "description": "Some composer ideas, this file started as a combination of drupal-composer/drupal-project plus contentacms, with some Acquia, and some tricks.",
+  "type": "project",
+  "authors": [],
+  "repositories": {
+    "drupal": {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    },
+    "asset-packagist": {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  },
+  "require": {
+    "asm89/stack-cors": "^1.1",
+    "bower-asset/chosen": "1.8.0",
+    "bower-asset/dropzone": "5.1.1",
+    "composer/installers": "^1.2",
+    "cweagans/composer-patches": "^1.6.0",
+    "drupal-composer/drupal-scaffold": "^2.2",
+    "drupal/acquia_connector": "^1.14",
+    "drupal/acquia_search": "^1.14",
+    "drupal/admin_toolbar": "^1.19",
+    "drupal/chosen": "^2",
+    "drupal/config_ignore": "~2.1",
+    "drupal/console": "^1.0.2",
+    "drupal/consumers": "^1.0@beta",
+    "drupal/consumer_image_styles": "^2.0@rc",
+    "drupal/decoupled_router": "^1.0@beta",
+    "drupal/ds": "^3",
+    "drupal/diff": "^1",
+    "drupal/dropzonejs": "^1.0@alpha",
+    "drupal/entity": "~1",
+    "drupal/entity_browser": "^2.0",
+    "drupal/fieldable_path": "^1.0",
+    "drupal/field_group": "~3",
+    "drupal/graphql": "^3.0@beta",
+    "drupal/inline_entity_form": "~1.0",
+    "drupal/jsonapi": "^1.7",
+    "drupal/jsonapi_extras": "^2",
+    "drupal/lightning_workflow": "~1",
+    "drupal/linkit": "~5",
+    "drupal/material_admin": "^1.0@alpha",
+    "drupal/media_entity_browser": "~2",
+    "drupal/metatag": "1.4",
+    "drupal/openapi": "^1.0@alpha",
+    "drupal/paragraphs": "^1.1",
+    "drupal/paragraphs_edit": "^2",
+    "drupal/pathauto": "^1.0",
+    "drupal/remote_stream_wrapper": "^1",
+    "drupal/rest_menu_items": "^1",
+    "drupal/restui": "^1",
+    "drupal/schemata": "^1.0@alpha",
+    "drupal/simple_oauth": "^3.3",
+    "drupal/sitemap": "~1",
+    "drupal/subrequests": "^2.0@beta",
+    "drupal/webform": "^5",
+    "drupal/webform_rest": "^2",
+    "drupal/workbench_access": "^1.0@alpha",
+    "drupal/workbench_email": "^1.0@alpha",
+    "drupal/workbench_moderation": "^1.2",
+    "drupal/workbench_moderation_actions": "^1.0@alpha",
+    "drupal/workbench_moderation_state_access": "^1.0",
+    "drupal/youtube": "dev-1.x",
+    "drush/drush": "~8.1.12",
+    "oomphinc/composer-installers-extender": "^1.1",
+    "webflo/drupal-core-strict": "8.5.1",
+    "webflo/drupal-finder": "^1.0.0"
+  },
+  "require-dev": {
+    "behat/mink": "~1.7",
+    "behat/mink-goutte-driver": "~1.2",
+    "drupal/coder": "^8.2",
+    "drupal/devel": "1.x-dev",
+    "drupal/drupal-extension": "v3.3.0",
+    "geerlingguy/drupal-vm": "~4.3",
+    "jcalderonzumba/gastonjs": "~1.0.2",
+    "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
+    "mikey179/vfsstream": "~1.2",
+    "mindplay/composer-locator": "dev-locate-script",
+    "symfony/css-selector": "~2.8|~3.0",
+    "phpunit/phpunit": "~7",
+    "typhonius/acquia_cli": "master-dev"
+  },
+  "conflict": {
+    "drupal/drupal": "*"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "autoload": {
+    "classmap": [
+      "scripts/composer/ScriptHandler.php",
+      "scripts/composer/"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests"
+    ]
+  },
+  "scripts": {
+    "dependency-cleanup": [ "Drupal\\composer\\ScriptHandler::dependencyCleanup" ],
+    "drupal-scaffold": "Drupal\\DrupalScaffold\\Plugin::scaffold",
+    "post-install-cmd": [ "Drupal\\composer\\ScriptHandler::buildScaffold" ],
+    "post-update-cmd": [ "Drupal\\composer\\ScriptHandler::buildScaffold" ],
+    "acquia-push-branch": [
+      "@test-static",
+      "scripts/acquia-deploy.sh"
+    ],
+    "canonical-cex": [
+      "git status",
+      "echo 'Note: the canonical site is current Acquia test (staging).'",
+      "@sync-test",
+      "./vendor/bin/drush --alias-path=./drush @vm cache-rebuild",
+      "./vendor/bin/drush --alias-path=./drush @vm updatedb -v -y",
+      "./vendor/bin/drush --alias-path=./drush @vm config-export -y"
+    ],
+    "canonical-cim": [
+      "echo 'Note: the canonical site is current Acquia test (staging).'",
+      "@sync-test",
+      "./vendor/bin/drush --alias-path=./drush @vm config-import -y",
+      "./vendor/bin/drush --alias-path=./drush @vm cache-rebuild"
+    ],
+    "sync-test": [
+      "./vendor/bin/drush --local --alias-path=./drush @vm sql-drop -y",
+      "./vendor/bin/drush --local --alias-path=./drush sql-sync @test @vm -y"
+    ],
+    "test": [
+      "@test-static",
+      "@test-integration"
+    ],
+    "test-static": [
+      "composer validate",
+      "php ./vendor/bin/phpunit ./tests/unit",
+      "@test-lint"
+    ],
+    "test-lint": [
+      "./vendor/bin/phpcs --runtime-set installed_paths $(pwd)/vendor/drupal/coder/coder_sniffer --runtime-set eslint_path $(pwd)/node_modules/.bin/eslint --colors -s -p"
+    ],
+    "test-integration": [
+      "./scripts/integration-test.sh"
+    ],
+    "test-api": [
+      "./scripts/api-test.sh"
+    ]
+  },
+  "scripts-descriptions": {
+    "install-site": "* Custom: Install the codebase from scratch from a database stub.",
+    "sync-test": "* Custom: Sync database from Acquia test (stage) to local VM."
+  },
+  "extra": {
+    "acquia": {
+      "site": "acme",
+      "realm": "prod",
+      "git-remote": "acme@svn-12345.prod.hosting.acquia.com:acme.git",
+      "organisation": "1234555-2422532-234324324-325-1454325342",
+      "environments": {
+        "dev": { "alias": "@dev", "uuid": "1234555-2422532-234324324-325-1454325342" },
+        "test": { "alias": "@test", "uuid": "1234555-2422532-234324324-325-1454325342" },
+        "ra": { "alias": "@ra", "uuid": "1234555-2422532-234324324-325-1454325342" },
+        "prod": { "alias": "@prod", "uuid": "1234555-2422532-234324324-325-1454325342" }
+      }
+    },
+    "installer-types": ["bower-asset", "npm-asset"],
+    "installer-paths": {
+      "docroot/core": ["type:drupal-core"],
+      "docroot/libraries/{$name}/": [
+        "type:drupal-library",
+        "vendor:bower-asset",
+        "vendor:npm-asset"
+      ],
+      "docroot/modules/contrib/{$name}": ["type:drupal-module"],
+      "docroot/profiles/contrib/{$name}": ["type:drupal-profile"],
+      "docroot/themes/contrib/{$name}": ["type:drupal-theme"],
+      "drush/contrib/{$name}": ["type:drupal-drush"]
+    },
+    "drupal-scaffold": {
+      "source": "http://cgit.drupalcode.org/drupal/plain/{path}?h={version}",
+      "excludes": [
+        "sites/default/default.services.yml",
+        "sites/default/default.settings.php",
+        "sites/example.settings.local.php",
+        "sites/example.sites.php",
+        "sites/development.services.yml"
+      ],
+      "omit-defaults": false
+    },
+    "enable-patching": true,
+    "patches": {
+      "league/oauth2-server": {
+        "Allow Acquia 440 permissions for key file": "https://www.drupal.org/files/issues/2915576-crypt-key-allow-440-do-not-test.patch"
+      },
+      "drupal/simple_oauth": {
+        "Interface errors, @see http://drupal.org/node/2941522": "https://www.drupal.org/files/issues/abstract_method_fix.patch.txt"
+      },
+      "drupal/fieldable_path": {
+        "Fix pathauto 1.1 issue.": "https://www.drupal.org/files/issues/2949926-2-replace-pathauto-entity-update.diff"
+      },
+      "drupal/core": {
+        "Handling race condition when youtube module doens't have local files": "https://www.drupal.org/files/issues/valid-object-or-string-2849413-2-d8.patch"
+      },
+      "drupal/jsonapi": {
+        "Fix a bug in head https://cgit.drupalcode.org/jsonapi/commit/?id=47ebe1bf8a6df1b4143af2502103b559c05455bd": "https://cgit.drupalcode.org/jsonapi/patch/src?id=47ebe1bf8a6df1b4143af2502103b559c05455bd",
+        "Suppress a new validation feature causing issues.": "./scripts/patches/json-suppress-validation.patch"
+      }
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "secure-http": true,
+    "preferred-install": {
+      "*": "auto"
+    }
+  }
+}
